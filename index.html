@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Nova Official Store</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<style>
+body{
+  margin:0;
+  font-family:Arial;
+  background:#000;
+  color:white;
+}
+
+/* PAGES */
+.page{display:none}
+
+/* WELCOME */
+#welcome{
+  display:flex;
+  height:100vh;
+  flex-direction:column;
+  justify-content:center;
+  align-items:center;
+  background:linear-gradient(45deg,#000,#001f3f);
+}
+
+#welcome h1{
+  font-size:38px;
+  color:#00eaff;
+  text-shadow:0 0 20px #00eaff;
+}
+
+#welcome button{
+  margin-top:20px;
+}
+
+/* LOGIN */
+#login{
+  display:flex;
+  height:100vh;
+  flex-direction:column;
+  justify-content:center;
+  align-items:center;
+}
+
+input{
+  padding:10px;
+  margin:10px;
+  width:220px;
+  border:none;
+  border-radius:5px;
+}
+
+button{
+  padding:10px 15px;
+  background:#00eaff;
+  border:none;
+  color:black;
+  font-weight:bold;
+  cursor:pointer;
+}
+
+/* CATEGORY */
+#category{
+  padding:20px;
+}
+
+.card{
+  position:relative;
+  height:200px;
+  margin:15px 0;
+  border-radius:20px;
+  overflow:hidden;
+  cursor:pointer;
+  box-shadow:0 0 15px #00eaff;
+}
+
+.card img{
+  width:100%;
+  height:100%;
+  object-fit:cover;
+  filter:brightness(0.6);
+}
+
+.card h2{
+  position:absolute;
+  bottom:20px;
+  left:20px;
+  color:#00eaff;
+}
+
+/* SHOP */
+#shop{padding:20px}
+
+.product{
+  background:#111;
+  margin:10px;
+  padding:10px;
+  border-radius:10px;
+}
+
+/* CART */
+.cart{
+  position:fixed;
+  right:0;
+  top:0;
+  width:260px;
+  height:100%;
+  background:white;
+  color:black;
+  padding:10px;
+  display:none;
+  overflow:auto;
+}
+
+#qrBox{display:none;margin-top:10px}
+</style>
+</head>
+
+<body>
+
+<!-- WELCOME -->
+<div id="welcome" class="page" style="display:flex;">
+<h1>⚡ Nova Official Store ⚡</h1>
+<p>Premium Gaming Top-Up</p>
+<button onclick="showPage('login')">Enter</button>
+</div>
+
+<!-- LOGIN -->
+<div id="login" class="page">
+<h2>Login</h2>
+<input placeholder="Username">
+<input type="password" placeholder="Password">
+<button onclick="showPage('category')">Login</button>
+</div>
+
+<!-- CATEGORY -->
+<div id="category" class="page">
+<h2>💎 ML Top-Up</h2>
+
+<div class="card" onclick="openShop('weekly')">
+<img src="https://via.placeholder.com/600x300?text=Weekly+Pass">
+<h2>🔥 Weekly Pass</h2>
+</div>
+
+<div class="card" onclick="openShop('small')">
+<img src="https://via.placeholder.com/600x300?text=Small+Diamonds">
+<h2>💎 Small Diamonds</h2>
+</div>
+
+<div class="card" onclick="openShop('large')">
+<img src="https://via.placeholder.com/600x300?text=Large+Diamonds">
+<h2>💎 Large Diamonds</h2>
+</div>
+
+</div>
+
+<!-- SHOP -->
+<div id="shop" class="page">
+<h2 id="title"></h2>
+
+<button onclick="toggleCart()">Cart (<span id="count">0</span>)</button>
+<button onclick="showPage('category')">Back</button>
+
+<div id="products"></div>
+</div>
+
+<!-- CART -->
+<div class="cart" id="cart">
+<h3>Cart</h3>
+<div id="items"></div>
+<h4 id="total"></h4>
+
+<button onclick="checkout()">Checkout</button>
+
+<div id="qrBox">
+<h3>Scan & Pay</h3>
+<img src="https://via.placeholder.com/150"><br><br>
+<button onclick="sendWhatsApp()">Send WhatsApp</button>
+</div>
+</div>
+
+<script>
+let cart=[];
+
+/* PAGE SWITCH */
+function showPage(p){
+['welcome','login','category','shop'].forEach(id=>{
+document.getElementById(id).style.display='none';
+});
+document.getElementById(p).style.display='block';
+}
+
+/* OPEN SHOP */
+function openShop(type){
+showPage('shop');
+let box=document.getElementById('products');
+let title=document.getElementById('title');
+box.innerHTML='';
+
+if(type==='weekly'){
+title.innerText='Weekly Pass';
+[100,200,300].forEach((p,i)=>{
+box.innerHTML+=`<div class="product">
+<h3>Weekly Pass ${i+1}</h3>
+<p>₹${p}</p>
+<button onclick="add('Weekly Pass ${i+1}',${p})">Add</button>
+</div>`;
+});
+}
+
+if(type==='small'){
+title.innerText='Small Diamonds';
+[50,100,150].forEach(p=>{
+box.innerHTML+=`<div class="product">
+<h3>${p} Diamonds</h3>
+<p>₹${p}</p>
+<button onclick="add('${p} Diamonds',${p})">Add</button>
+</div>`;
+});
+}
+
+if(type==='large'){
+title.innerText='Large Diamonds';
+[500,1000,1500].forEach(p=>{
+box.innerHTML+=`<div class="product">
+<h3>${p} Diamonds</h3>
+<p>₹${p}</p>
+<button onclick="add('${p} Diamonds',${p})">Add</button>
+</div>`;
+});
+}
+}
+
+/* CART */
+function toggleCart(){
+let c=document.getElementById('cart');
+c.style.display=c.style.display==='block'?'none':'block';
+}
+
+function add(name,price){
+cart.push({name,price});
+document.getElementById('count').innerText=cart.length;
+render();
+}
+
+function render(){
+let items=document.getElementById('items');
+items.innerHTML='';
+let total=0;
+
+cart.forEach(p=>{
+total+=p.price;
+items.innerHTML+=`<p>${p.name} - ₹${p.price}</p>`;
+});
+
+document.getElementById('total').innerText="Total: ₹"+total;
+}
+
+/* CHECKOUT */
+function checkout(){
+if(cart.length===0){
+alert("Cart empty");
+return;
+}
+document.getElementById('qrBox').style.display='block';
+}
+
+/* WHATSAPP */
+function sendWhatsApp(){
+let msg="Nova Store Order:%0A";
+let total=0;
+
+cart.forEach(p=>{
+msg+=p.name+" - ₹"+p.price+"%0A";
+total+=p.price;
+});
+
+msg+="Total: ₹"+total;
+
+window.open("https://wa.me/919233585106?text="+encodeURIComponent(msg),'_blank');
+}
+</script>
+
+</body>
+</html>
