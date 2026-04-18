@@ -1,0 +1,133 @@
+<!DOCTYPE html><html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Nova Store - Amazon Style</title>
+<style>
+body{margin:0;font-family:Arial;background:#f4f4f4}/* TOP BAR */ .header{ background:#131921; color:white; padding:12px; display:flex; justify-content:space-between; align-items:center; position:sticky; top:0; }
+
+.header input{ width:50%; padding:6px; border:none; border-radius:4px; }
+
+.header button{ background:#ffbf00; border:none; padding:6px 10px; cursor:pointer; font-weight:bold; }
+
+/* HERO */ .hero{ background:linear-gradient(to right,#000,#333); color:white; text-align:center; padding:40px 20px; }
+
+.hero button{ padding:10px 20px; background:#ffbf00; border:none; cursor:pointer; font-weight:bold; }
+
+/* PRODUCTS */ .products{ display:grid; grid-template-columns:repeat(auto-fit,minmax(160px,1fr)); gap:15px; padding:20px; }
+
+.card{ background:white; padding:10px; border-radius:8px; box-shadow:0 2px 5px rgba(0,0,0,0.2); text-align:center; }
+
+.card button{ background:black; color:white; border:none; padding:6px; cursor:pointer; margin-top:5px; }
+
+/* CART SIDEBAR */ .cart{ position:fixed; right:0; top:0; width:320px; height:100%; background:white; box-shadow:-2px 0 10px rgba(0,0,0,0.2); padding:10px; display:none; overflow:auto; }
+
+.cart h3{margin-top:0}
+
+.checkout{ background:#ffbf00; border:none; padding:10px; width:100%; cursor:pointer; font-weight:bold; }
+
+/* CHECKOUT MODAL */ .modal{ position:fixed; top:0;left:0; width:100%;height:100%; background:rgba(0,0,0,0.6); display:none; justify-content:center; align-items:center; }
+
+.modal-content{ background:white; padding:20px; border-radius:10px; text-align:center; width:300px; }
+
+.modal button{ background:green; color:white; border:none; padding:10px; cursor:pointer; width:100%; margin-top:10px; } </style>
+
+</head>
+<body><!-- HEADER --><div class="header">
+<div><b>Nova Store</b></div>
+<input id="search" onkeyup="search()" placeholder="Search products...">
+<button onclick="toggleCart()">Cart (<span id="count">0</span>)</button>
+</div><!-- HERO --><div class="hero">
+<h1>Welcome to Nova Official Store</h1>
+<p>Amazon Style Shopping Experience</p>
+<button onclick="scrollDown()">Shop Now</button>
+</div><!-- PRODUCTS --><div class="products" id="products"></div><!-- CART --><div class="cart" id="cart">
+<h3>Your Cart</h3>
+<div id="items"></div>
+<h4 id="total"></h4>
+<button class="checkout" onclick="openCheckout()">Proceed to Buy</button>
+</div><!-- CHECKOUT MODAL --><div class="modal" id="modal">
+<div class="modal-content">
+<h3>Order Summary</h3>
+<div id="summary"></div>
+<button onclick="placeOrder()">Place Order on WhatsApp</button>
+</div>
+</div><script>
+let cart=[];
+
+function scrollDown(){
+document.getElementById('products').scrollIntoView({behavior:'smooth'});
+}
+
+function toggleCart(){
+let c=document.getElementById('cart');
+c.style.display=c.style.display==='block'?'none':'block';
+}
+
+function add(name,price){
+cart.push({name,price});
+document.getElementById('count').innerText=cart.length;
+render();
+}
+
+function render(){
+let items=document.getElementById('items');
+items.innerHTML='';
+let total=0;
+cart.forEach(i=>{
+total+=i.price;
+items.innerHTML+=`<p>${i.name} - ₹${i.price}</p>`;
+});
+document.getElementById('total').innerText="Total: ₹"+total;
+}
+
+function openCheckout(){
+if(cart.length===0){alert("Cart empty");return;}
+document.getElementById('modal').style.display='flex';
+
+let summary=document.getElementById('summary');
+summary.innerHTML='';
+cart.forEach(i=>{
+summary.innerHTML+=`<p>${i.name} - ₹${i.price}</p>`;
+});
+}
+
+function placeOrder(){
+let msg="Hello, I want to order:%0A";
+let total=0;
+cart.forEach(i=>{
+msg+=i.name+" - ₹"+i.price+"%0A";
+total+=i.price;
+});
+msg+="Total: ₹"+total;
+
+let phone="919233585106";
+let url="https://wa.me/"+phone+"?text="+encodeURIComponent(msg);
+window.open(url,"_blank");
+}
+
+function search(){
+let val=document.getElementById('search').value.toLowerCase();
+document.querySelectorAll('.card').forEach(c=>{
+c.style.display=c.innerText.toLowerCase().includes(val)?'block':'none';
+});
+}
+
+function toggleCart(){
+let c=document.getElementById('cart');
+c.style.display=c.style.display==='block'?'none':'block';
+}
+
+// PRODUCTS
+let box=document.getElementById('products');
+for(let i=1;i<=30;i++){
+box.innerHTML+=`
+<div class='card'>
+<h4>Product ${i}</h4>
+<p>₹${i*100}</p>
+<button onclick="add('Product ${i}',${i*100})">Add to Cart</button>
+</div>
+`;
+}
+</script></body>
+</html>
