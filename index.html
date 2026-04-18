@@ -1,0 +1,110 @@
+<!DOCTYPE html><html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Nova Official Store</title>
+<style>
+body {margin:0; font-family:Arial; background:#f5f5f5;}/* FRONT */ .front {height:100vh; display:flex; flex-direction:column; justify-content:center; align-items:center; background:linear-gradient(45deg, black, #444); color:white;} .front button {padding:12px 25px; background:gold; border:none; cursor:pointer; margin-top:15px;}
+
+/* NAV */ nav {background:black; color:white; padding:10px; display:flex; justify-content:space-between; align-items:center;} nav input {padding:5px;} nav button {background:gold; border:none; cursor:pointer; margin-left:5px;}
+
+/* PRODUCTS */ .shop {display:none;} .products {display:grid; grid-template-columns:repeat(auto-fit,minmax(150px,1fr)); gap:15px; padding:20px;} .product {background:white; padding:10px; border-radius:10px; text-align:center; box-shadow:0 2px 5px rgba(0,0,0,0.2);} .product img {width:100%; height:100px; object-fit:cover; border-radius:5px;} .product:hover {transform:scale(1.05); transition:0.3s;}
+
+/* CART */ .cart {position:fixed; right:0; top:0; width:260px; height:100%; background:white; border-left:2px solid black; padding:10px; display:none; overflow:auto;}
+
+/* AUTH */ .auth {display:none; padding:20px; text-align:center;} .auth input {display:block; margin:10px auto; padding:8px; width:200px;}
+
+</style>
+</head>
+<body><!-- FRONT --><div class="front" id="front">
+  <h1 style="text-align:center;">Welcome to<br> 🔥 Nova Official Store 🔥</h1>
+  <p>Everything you need in one place</p>
+  <button onclick="openShop()">Shop Now</button>
+</div><!-- AUTH --><div class="auth" id="auth">
+  <h2>Login</h2>
+  <input type="text" id="username" placeholder="Username">
+  <input type="password" id="password" placeholder="Password">
+  <button onclick="login()">Login</button>
+</div><!-- SHOP --><div class="shop" id="shop">
+  <nav>
+    <div>Nova Store</div>
+    <div>
+      <input type="text" id="search" placeholder="Search..." onkeyup="searchProduct()">
+      <button onclick="toggleCart()">Cart (<span id="cartCount">0</span>)</button>
+      <button onclick="goHome()">Home</button>
+    </div>
+  </nav>  <div class="products" id="products"></div>
+</div><!-- CART --><div class="cart" id="cart">
+  <h3>🛒 Cart</h3>
+  <div id="cartItems"></div>
+  <h4 id="total"></h4>
+  <button onclick="checkout()">Checkout</button>
+</div><script>
+let cart = [];
+
+function openShop(){
+  document.getElementById('front').style.display='none';
+  document.getElementById('auth').style.display='block';
+}
+
+function login(){
+  document.getElementById('auth').style.display='none';
+  document.getElementById('shop').style.display='block';
+}
+
+function goHome(){
+  location.reload();
+}
+
+function toggleCart(){
+  let c = document.getElementById('cart');
+  c.style.display = (c.style.display==='block') ? 'none' : 'block';
+}
+
+function addToCart(name, price){
+  cart.push({name, price});
+  document.getElementById('cartCount').innerText = cart.length;
+  renderCart();
+}
+
+function renderCart(){
+  let items = document.getElementById('cartItems');
+  let total = 0;
+  items.innerHTML='';
+  cart.forEach(p => {
+    total += p.price;
+    items.innerHTML += `<p>${p.name} - ₹${p.price}</p>`;
+  });
+  document.getElementById('total').innerText = "Total: ₹" + total;
+}
+
+function checkout(){
+  alert("Order placed successfully!");
+  cart=[];
+  renderCart();
+  document.getElementById('cartCount').innerText=0;
+}
+
+function searchProduct(){
+  let input = document.getElementById('search').value.toLowerCase();
+  let items = document.getElementsByClassName('product');
+  for(let i=0;i<items.length;i++){
+    let text = items[i].innerText.toLowerCase();
+    items[i].style.display = text.includes(input) ? '' : 'none';
+  }
+}
+
+// PRODUCTS
+let container = document.getElementById('products');
+for(let i=1;i<=30;i++){
+  container.innerHTML += `
+  <div class="product">
+    <img src="https://via.placeholder.com/150">
+    <h3>Product ${i}</h3>
+    <p>₹${i*100}</p>
+    <button onclick="addToCart('Product ${i}', ${i*100})">Add to Cart</button>
+  </div>
+  `;
+}
+</script></body>
+</html>
