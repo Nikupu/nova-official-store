@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Nova Official Store</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<style>
+body{
+  margin:0;
+  font-family:Arial;
+  background:linear-gradient(#0a0f2c,#000);
+  color:white;
+}
+
+/* PAGES */
+.page{display:none;padding:20px;text-align:center}
+
+/* WELCOME */
+#welcome{
+  display:flex;
+  height:100vh;
+  flex-direction:column;
+  justify-content:center;
+  align-items:center;
+}
+
+h1{color:#00eaff;text-shadow:0 0 15px #00eaff}
+
+/* BUTTON */
+button{
+  padding:10px 15px;
+  margin:8px;
+  border:none;
+  background:#00eaff;
+  color:black;
+  font-weight:bold;
+  cursor:pointer;
+  border-radius:5px;
+}
+
+/* INPUT */
+input{
+  padding:12px;
+  margin:8px;
+  width:220px;
+  border:none;
+  border-radius:5px;
+}
+
+/* CARDS */
+.card{
+  height:180px;
+  margin:15px;
+  border-radius:20px;
+  overflow:hidden;
+  position:relative;
+  box-shadow:0 0 15px #00eaff;
+  cursor:pointer;
+}
+
+.card img{
+  width:100%;
+  height:100%;
+  object-fit:cover;
+  filter:brightness(0.6);
+}
+
+.card h2{
+  position:absolute;
+  bottom:20px;
+  left:20px;
+}
+
+/* PRODUCT */
+.product{
+  background:#111;
+  margin:10px;
+  padding:10px;
+  border-radius:10px;
+}
+
+/* CART */
+.cart{
+  position:fixed;
+  right:0;
+  top:0;
+  width:260px;
+  height:100%;
+  background:white;
+  color:black;
+  padding:10px;
+  display:none;
+  overflow:auto;
+}
+
+#preview{color:#00eaff}
+
+/* QR BOX */
+#qrBox{
+  display:none;
+  margin-top:15px;
+  text-align:center;
+}
+</style>
+</head>
+
+<body>
+
+<!-- WELCOME -->
+<div id="welcome" class="page" style="display:flex;">
+<h1>⚡ Nova Official Store ⚡</h1>
+<p>Mobile Legends Top-Up</p>
+<button onclick="showPage('login')">Enter Store</button>
+</div>
+
+<!-- LOGIN -->
+<div id="login" class="page">
+<h2>Login</h2>
+<input placeholder="Username">
+<input type="password" placeholder="Password">
+<button onclick="showPage('category')">Login</button>
+</div>
+
+<!-- CATEGORY -->
+<div id="category" class="page">
+<h2>💎 Choose Pack</h2>
+
+<div class="card" onclick="openShop('weekly')">
+<img src="https://via.placeholder.com/600x300?text=Weekly+Pass">
+<h2>Weekly Pass</h2>
+</div>
+
+<div class="card" onclick="openShop('small')">
+<img src="https://via.placeholder.com/600x300?text=Small+Diamonds">
+<h2>Small Diamonds</h2>
+</div>
+
+<div class="card" onclick="openShop('large')">
+<img src="https://via.placeholder.com/600x300?text=Large+Diamonds">
+<h2>Large Diamonds</h2>
+</div>
+
+</div>
+
+<!-- SHOP -->
+<div id="shop" class="page">
+
+<h2 id="title"></h2>
+
+<!-- PLAYER INPUT -->
+<div style="background:#111;padding:15px;border-radius:12px;">
+<h3>🎮 Enter Player Details</h3>
+
+<input id="playerId" placeholder="Player ID" oninput="updatePreview()">
+<input id="serverId" placeholder="Server ID" oninput="updatePreview()">
+
+<p id="preview"></p>
+</div>
+
+<button onclick="toggleCart()">🛒 Cart (<span id="count">0</span>)</button>
+<button onclick="showPage('category')">⬅ Back</button>
+
+<div id="products"></div>
+
+</div>
+
+<!-- CART -->
+<div class="cart" id="cart">
+<h3>Cart</h3>
+<div id="items"></div>
+<h4 id="total"></h4>
+
+<button onclick="checkout()">Checkout</button>
+
+<!-- QR SECTION -->
+<div id="qrBox">
+  <h3>📲 Scan & Pay</h3>
+
+  <img src="https://via.placeholder.com/150?text=QR+Code" style="border-radius:10px;"><br><br>
+
+  <p>UPI ID: yourname@upi</p>
+
+  <button onclick="sendWhatsApp()">I Have Paid</button>
+</div>
+
+</div>
+
+<script>
+let cart=[];
+let playerID="";
+let serverID="";
+
+/* PAGE */
+function showPage(p){
+['welcome','login','category','shop'].forEach(id=>{
+document.getElementById(id).style.display='none';
+});
+document.getElementById(p).style.display='block';
+}
+
+/* PREVIEW */
+function updatePreview(){
+playerID=document.getElementById('playerId').value.trim();
+serverID=document.getElementById('serverId').value.trim();
+
+if(playerID && serverID){
+document.getElementById('preview').innerText =
+"Player: "+playerID+" ("+serverID+")";
+}else{
+document.getElementById('preview').innerText="";
+}
+}
+
+/* SHOP */
+function openShop(type){
+showPage('shop');
+
+let box=document.getElementById('products');
+let title=document.getElementById('title');
+box.innerHTML='';
+
+if(type==='weekly'){
+title.innerText='Weekly Pass';
+[100,200].forEach((p,i)=>{
+box.innerHTML+=`<div class="product">
+<h3>Weekly ${i+1}</h3>
+<p>₹${p}</p>
+<button onclick="add('Weekly ${i+1}',${p})">Add</button>
+</div>`;
+});
+}
+
+if(type==='small'){
+title.innerText='Small Diamonds';
+[50,100,150].forEach(p=>{
+box.innerHTML+=`<div class="product">
+<h3>${p} Diamonds</h3>
+<p>₹${p}</p>
+<button onclick="add('${p} Diamonds',${p})">Add</button>
+</div>`;
+});
+}
+
+if(type==='large'){
+title.innerText='Large Diamonds';
+[500,1000].forEach(p=>{
+box.innerHTML+=`<div class="product">
+<h3>${p} Diamonds</h3>
+<p>₹${p}</p>
+<button onclick="add('${p} Diamonds',${p})">Add</button>
+</div>`;
+});
+}
+}
+
+/* CART */
+function toggleCart(){
+let c=document.getElementById('cart');
+c.style.display=c.style.display==='block'?'none':'block';
+}
+
+function add(name,price){
+cart.push({name,price});
+document.getElementById('count').innerText=cart.length;
+render();
+}
+
+function render(){
+let items=document.getElementById('items');
+items.innerHTML='';
+let total=0;
+
+cart.forEach(p=>{
+total+=p.price;
+items.innerHTML+=`<p>${p.name} - ₹${p.price}</p>`;
+});
+
+document.getElementById('total').innerText="Total: ₹"+total;
+}
+
+/* CHECKOUT */
+function checkout(){
+if(cart.length===0){
+alert("Cart empty");
+return;
+}
+
+if(playerID==="" || serverID===""){
+alert("Enter Player ID & Server first!");
+return;
+}
+
+/* SHOW QR */
+document.getElementById('qrBox').style.display='block';
+}
+
+/* WHATSAPP */
+function sendWhatsApp(){
+let msg="Nova ML Order:%0A";
+
+msg += "Player ID: "+playerID+"%0A";
+msg += "Server: "+serverID+"%0A%0A";
+
+let total=0;
+cart.forEach(p=>{
+msg+=p.name+" - ₹"+p.price+"%0A";
+total+=p.price;
+});
+
+msg+="%0ATotal: ₹"+total;
+
+window.open("https://wa.me/919233585106?text="+encodeURIComponent(msg),'_blank');
+}
+</script>
+
+</body>
+</html>
