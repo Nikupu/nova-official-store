@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Nova Official Store</title>
+
+<!-- Firebase -->
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-messaging-compat.js"></script>
+
+<style>
+body{margin:0;font-family:Arial;background:#070714;color:white}
+
+header{
+  padding:14px;
+  text-align:center;
+  font-weight:bold;
+  background:linear-gradient(90deg,#6a11cb,#2575fc);
+}
+
+.page{display:none;padding:15px}
+.active{display:block}
+
+.center{
+  height:80vh;
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
+  align-items:center;
+  text-align:center;
+}
+
+.btn{
+  padding:14px;
+  width:100%;
+  margin-top:10px;
+  border:none;
+  border-radius:12px;
+  background:#2575fc;
+  color:white;
+  font-weight:bold;
+}
+
+.card{
+  background:#14142a;
+  padding:15px;
+  border-radius:12px;
+}
+
+input{
+  width:100%;
+  padding:12px;
+  border-radius:10px;
+  border:none;
+  margin-top:10px;
+}
+
+.grid{
+  display:grid;
+  grid-template-columns:repeat(2,1fr);
+  gap:10px;
+}
+
+.product{
+  background:#1e1e38;
+  padding:10px;
+  border-radius:12px;
+  text-align:center;
+}
+
+.product img{
+  width:100%;
+  border-radius:10px;
+}
+
+.adminBtn{
+  position:absolute;
+  top:10px;
+  right:10px;
+  background:#ff3d71;
+  border:none;
+  padding:6px 10px;
+  border-radius:8px;
+  color:white;
+  font-size:12px;
+}
+
+</style>
+</head>
+
+<body>
+
+<header>Nova Official Store</header>
+
+<!-- HOME -->
+<div class="page active" id="home">
+  <button class="adminBtn" onclick="go('admin')">Admin</button>
+
+  <div class="center">
+    <h1>Welcome to Nova Official Store</h1>
+    <button class="btn" onclick="go('phone')">ENTER SHOP</button>
+  </div>
+</div>
+
+<!-- PHONE -->
+<div class="page" id="phone">
+  <div class="card">
+    <h3>Enter WhatsApp Number</h3>
+    <input id="phoneInput" maxlength="10" oninput="onlyNum()" placeholder="10-digit number">
+    <button class="btn" onclick="validatePhone()">Continue</button>
+  </div>
+</div>
+
+<!-- STORE -->
+<div class="page" id="store">
+
+  <div class="grid">
+    <div class="product"><img src="https://via.placeholder.com/150">Pack 1<button class="btn" onclick="add('Pack 1')">Add</button></div>
+    <div class="product"><img src="https://via.placeholder.com/150">Pack 2<button class="btn" onclick="add('Pack 2')">Add</button></div>
+    <div class="product"><img src="https://via.placeholder.com/150">Pack 3<button class="btn" onclick="add('Pack 3')">Add</button></div>
+    <div class="product"><img src="https://via.placeholder.com/150">Pack 4<button class="btn" onclick="add('Pack 4')">Add</button></div>
+  </div>
+
+  <button class="btn" onclick="checkout()">Checkout</button>
+  <button class="btn" onclick="enablePush()">Enable Notifications 🔔</button>
+
+</div>
+
+<!-- ADMIN -->
+<div class="page" id="admin">
+  <div class="card">
+    <h3>Admin Login</h3>
+    <input id="email" placeholder="Email">
+    <input id="password" type="password" placeholder="Password">
+    <button class="btn" onclick="login()">Login</button>
+  </div>
+
+  <div class="card">
+    <h3>Orders</h3>
+    <div id="orders"></div>
+  </div>
+</div>
+
+<script>
+
+// ================= FIREBASE =================
+const firebaseConfig = {
+  apiKey: "AIzaSyB5KG4iKmlDQ_yvrXRfIIsUMZriT4VduTU",
+  authDomain: "nova-official-store.firebaseapp.com",
+  projectId: "nova-official-store",
+  messagingSenderId: "580011808963",
+  appId: "1:580011808963:web:78ef2494a362adcedc6a76"
+};
+
+firebase.initializeApp(firebaseConfig);
+
+const db = firebase.firestore();
+const auth = firebase.auth();
+const messaging = firebase.messaging();
+
+// ================= STATE =================
+let cart = [];
+let phone = "";
+
+// ================= NAV =================
+function go(id){
+  document.querySelectorAll(".page").forEach(p=>p.classList.remove("active"));
+  document.getElementById(id).classList.add("active");
+}
+
+// ================= PHONE =================
+function onlyNum(){
+  let i = document.getElementById("phoneInput");
+  i.value = i.value.replace(/\D/g,'').slice(0,10);
+}
+
+function validatePhone(){
+  let num = document.getElementById("phoneInput").value;
+
+  if(num.length !== 10){
+    alert("Enter 10-digit number");
+    return;
+  }
+
+  phone = "91" + num;
+  go("store");
+}
+
+// ================= CART =================
+function add(item){
+  cart.push(item);
+  alert(item + " added");
+}
+
+// ================= CHECKOUT =================
+async function checkout(){
+  if(cart.length === 0){
+    alert("Cart empty");
+    return;
+  }
+
+  await db.collection("orders").add({
+    phone,
+    items: cart,
+    status: "pending",
+    claimedBy: null,
+    time: Date.now()
+  });
+
+  cart = [];
+  alert("Order placed 🔥");
+}
+
+// ================= ADMIN LOGIN =================
+function login(){
+  auth.signInWithEmailAndPassword(email.value,password.value)
+  .then(loadOrders)
+  .catch(e=>alert(e.message));
+}
+
+// ================= LOAD ORDERS =================
+function loadOrders(){
+  db.collection("orders").orderBy("time","desc")
+  .onSnapshot(snap=>{
+    let box = document.getElementById("orders");
+    box.innerHTML = "";
+
+    snap.forEach(doc=>{
+      let o = doc.data();
+
+      box.innerHTML += `
+        <div class="card">
+          <b>${o.phone}</b><br>
+          ${o.items.join(", ")}<br>
+          ${o.status}
+          <button class="btn" onclick="claim('${doc.id}','${o.phone}','${o.items.join(", ")}')">Claim</button>
+        </div>
+      `;
+    });
+  });
+}
+
+// ================= CLAIM =================
+async function claim(id, phone, items){
+
+  let admin = auth.currentUser.email;
+
+  await db.collection("orders").doc(id).update({
+    status: "claimed",
+    claimedBy: admin
+  });
+
+  window.open(
+    "https://wa.me/"+phone+"?text="+encodeURIComponent("Nova Order: "+items)
+  );
+}
+
+// ================= PUSH =================
+async function enablePush(){
+
+  const perm = await Notification.requestPermission();
+  if(perm !== "granted") return;
+
+  const token = await messaging.getToken({
+    vapidKey: "YOUR_VAPID_KEY"
+  });
+
+  await db.collection("adminTokens").add({
+    token,
+    time: Date.now()
+  });
+
+  alert("Push enabled 🔔");
+}
+
+// FOREGROUND PUSH
+messaging.onMessage(payload=>{
+  alert("🔔 Nova Order Alert");
+});
+
+</script>
+
+</body>
+</html>
