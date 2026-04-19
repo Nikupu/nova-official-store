@@ -167,6 +167,7 @@ async function checkout(){
 
   if(cart.length===0) return alert("Cart empty");
 
+  // SAVE ORDER FIRST (this is working already)
   await db.collection("orders").add({
     phone,
     items:cart,
@@ -174,25 +175,31 @@ async function checkout(){
     time:Date.now()
   });
 
-  // 🔔 REAL PUSH TO ADMINS
-  const response = await fetch("https://onesignal.com/api/v1/notifications", {
-    method:"POST",
-    headers:{
-      "Content-Type":"application/json",
-      "Authorization":"Basic f4ygyx2ymevjfgi56lf7zzp2m"
-    },
-    body:JSON.stringify({
-      app_id:"f4bea716-26b5-4ec4-aa35-55fee7fcf91a",
-      include_player_ids:[
-        "b7a36495-b897-4a75-aae1-65fb3d163fb2"
-      ],
-      headings:{en:"🛒 New Order"},
-      contents:{en: phone + " placed an order"}
-    })
-  });
+  // 🔔 TRY NOTIFICATION (safe)
+  try{
+    const response = await fetch("https://onesignal.com/api/v1/notifications", {
+      method:"POST",
+      headers:{
+        "Content-Type":"application/json",
+        "Authorization":"Basic f4ygyx2ymevjfgi56lf7zzp2m"
+      },
+      body:JSON.stringify({
+        app_id:"f4bea716-26b5-4ec4-aa35-55fee7fcf91a",
+        include_player_ids:[
+          "b7a36495-b897-4a75-aae1-65fb3d163fb2"
+        ],
+        headings:{en:"🛒 New Order"},
+        contents:{en: phone + " placed an order"}
+      })
+    });
 
-  console.log(await response.json());
+    console.log(await response.json());
 
+  }catch(err){
+    console.error("Notification failed:", err);
+  }
+
+  // ✅ ALWAYS RUN THIS
   cart=[];
   document.getElementById("cartCount").innerText=0;
 
