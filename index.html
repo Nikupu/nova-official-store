@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Nova Official Store</title>
+
+<!-- FIREBASE -->
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+
+<style>
+body{margin:0;font-family:Arial;background:#0b0b1a;color:white}
+
+/* PAGES */
+.page{display:none;padding:20px}
+.active{display:block}
+
+/* BUTTON */
+.btn{
+  width:100%;
+  padding:12px;
+  margin-top:10px;
+  border:none;
+  border-radius:10px;
+  background:#2575fc;
+  color:white;
+}
+
+/* INPUT */
+input{
+  width:100%;
+  padding:12px;
+  margin-top:10px;
+  border:none;
+  border-radius:8px;
+}
+
+/* HEADER */
+header{
+  background:#2575fc;
+  padding:12px;
+  text-align:center;
+  font-weight:bold;
+  position:relative;
+}
+
+/* CART BUTTON */
+.cartBtn{
+  position:absolute;
+  right:10px;
+  top:8px;
+  background:#111;
+  color:white;
+  border:none;
+  padding:8px;
+  border-radius:8px;
+}
+
+/* TABS */
+.tabs{display:flex;overflow-x:auto;background:#111}
+.tab{
+  flex:1;
+  min-width:120px;
+  padding:12px;
+  background:#1c1c33;
+  border:none;
+  color:white;
+}
+.tab.active{background:#2575fc}
+
+/* PRODUCTS */
+.grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
+.product{
+  background:#1e1e38;
+  padding:10px;
+  border-radius:10px;
+  text-align:center;
+}
+
+/* CART */
+#cart{
+  position:fixed;
+  top:0;
+  right:-100%;
+  width:80%;
+  height:100%;
+  background:#0f0f20;
+  transition:0.3s;
+  padding:15px;
+  z-index:999;
+}
+#cart.open{right:0}
+
+.cartItem{
+  background:#1e1e38;
+  padding:10px;
+  margin-bottom:8px;
+  border-radius:10px;
+}
+</style>
+</head>
+
+<body>
+
+<!-- 🏠 WELCOME -->
+<div id="welcome" class="page active">
+  <h1>🚀 Nova Official Store</h1>
+  <p>Fast • Secure • Instant Delivery</p>
+  <button class="btn" onclick="go('phone')">Enter Store</button>
+  <button class="btn" style="background:#111" onclick="go('admin')">👑 Admin Panel</button>
+</div>
+
+<!-- 📱 PHONE -->
+<div id="phone" class="page">
+  <h3>Enter WhatsApp Number</h3>
+  <input id="phoneInput" maxlength="10"
+  oninput="this.value=this.value.replace(/\D/g,'').slice(0,10)">
+  <button class="btn" onclick="enterShop()">Continue</button>
+</div>
+
+<!-- 🛍️ SHOP -->
+<div id="shop" class="page">
+
+<header>
+  Nova Store
+  <button class="cartBtn" onclick="toggleCart()">
+    🛒 <span id="count">0</span>
+  </button>
+</header>
+
+<h3>Game Details</h3>
+<input id="gameServer" placeholder="Game Server / Region">
+<input id="playerId" placeholder="Player ID / UID">
+
+<div class="tabs">
+  <button class="tab active" onclick="showTab('games')">Games</button>
+  <button class="tab" onclick="showTab('topup')">Topup</button>
+  <button class="tab" onclick="showTab('premium')">Premium</button>
+</div>
+
+<div id="games" class="tabPage active">
+  <div class="grid">
+    <div class="product">
+      BGMI UC
+      <button class="btn" onclick="add('BGMI UC',100)">Add ₹100</button>
+    </div>
+    <div class="product">
+      Free Fire
+      <button class="btn" onclick="add('FF Diamonds',150)">Add ₹150</button>
+    </div>
+  </div>
+</div>
+
+<div id="topup" class="tabPage" style="display:none">
+  <div class="grid">
+    <div class="product">
+      Google Play
+      <button class="btn" onclick="add('Google Play',100)">Add ₹100</button>
+    </div>
+  </div>
+</div>
+
+<div id="premium" class="tabPage" style="display:none">
+  <div class="grid">
+    <div class="product">
+      Netflix
+      <button class="btn" onclick="add('Netflix',199)">Add ₹199</button>
+    </div>
+  </div>
+</div>
+
+</div>
+
+<!-- 🛒 CART -->
+<div id="cart">
+
+<h3>Your Cart</h3>
+<div id="cartBox"></div>
+
+<hr>
+<h3>Total: ₹<span id="total">0</span></h3>
+
+<button class="btn" onclick="checkout()">Checkout</button>
+<button class="btn" onclick="toggleCart()">Close</button>
+
+</div>
+
+<!-- 👑 ADMIN LOGIN -->
+<div id="admin" class="page">
+  <h2>Admin Login</h2>
+  <input id="email" placeholder="Email">
+  <input id="password" type="password" placeholder="Password">
+  <button class="btn" onclick="login()">Login</button>
+</div>
+
+<!-- 📊 ADMIN PANEL -->
+<div id="panel" class="page">
+  <h2>Orders Panel</h2>
+  <div id="orders"></div>
+</div>
+
+<script>
+
+/* FIREBASE CONNECT */
+const firebaseConfig = {
+  apiKey: "AIzaSyB5KG4iKmlDQ_yvrXRfIIsUMZriT4VduTU",
+  authDomain: "nova-official-store.firebaseapp.com",
+  projectId: "nova-official-store",
+  storageBucket: "nova-official-store.firebasestorage.app",
+  messagingSenderId: "580011808963",
+  appId: "1:580011808963:web:78ef2494a362adcedc6a76"
+};
+
+firebase.initializeApp(firebaseConfig);
+
+const db = firebase.firestore();
+const auth = firebase.auth();
+
+/* TELEGRAM */
+const botToken = "YOUR_BOT_TOKEN";
+const adminIds = ["ADMIN_ID"];
+
+/* STATE */
+let cart=[];
+let phone="";
+
+/* NAV */
+function go(p){
+  document.querySelectorAll(".page").forEach(x=>x.classList.remove("active"));
+  document.getElementById(p).classList.add("active");
+}
+
+/* ENTER SHOP */
+function enterShop(){
+  let num=document.getElementById("phoneInput").value;
+  if(num.length!=10) return alert("Invalid number");
+  phone="91"+num;
+  go("shop");
+}
+
+/* TABS */
+function showTab(tab){
+  document.querySelectorAll(".tabPage").forEach(t=>t.style.display="none");
+  document.getElementById(tab).style.display="block";
+  document.querySelectorAll(".tab").forEach(t=>t.classList.remove("active"));
+  event.target.classList.add("active");
+}
+
+/* CART */
+function toggleCart(){
+  document.getElementById("cart").classList.toggle("open");
+}
+
+function add(name,price){
+  cart.push({name,price});
+  updateCart();
+}
+
+function removeItem(i){
+  cart.splice(i,1);
+  updateCart();
+}
+
+function updateCart(){
+
+  let box=document.getElementById("cartBox");
+  box.innerHTML="";
+
+  let total=0;
+
+  cart.forEach((c,i)=>{
+    total+=c.price;
+
+    box.innerHTML+=`
+      <div class="cartItem">
+        ${c.name} - ₹${c.price}
+        <button class="btn" style="background:red;margin-top:5px" onclick="removeItem(${i})">Remove</button>
+      </div>
+    `;
+  });
+
+  document.getElementById("count").innerText=cart.length;
+  document.getElementById("total").innerText=total;
+}
+
+/* CHECKOUT */
+function checkout(){
+
+  if(cart.length==0) return alert("Cart empty");
+
+  let total=cart.reduce((a,b)=>a+b.price,0);
+  let items=cart.map(c=>c.name).join(", ");
+
+  let server=document.getElementById("gameServer").value;
+  let pid=document.getElementById("playerId").value;
+
+  if(!server||!pid) return alert("Enter game details");
+
+  db.collection("orders").add({
+    phone,
+    items,
+    total,
+    gameServer:server,
+    playerId:pid,
+    claimed:false,
+    time:Date.now()
+  });
+
+  /* TELEGRAM */
+  adminIds.forEach(id=>{
+    fetch(`https://api.telegram.org/bot${botToken}/sendMessage`,{
+      method:"POST",
+      headers:{"Content-Type":"application/json"},
+      body:JSON.stringify({
+        chat_id:id,
+        text:`🛒 NEW ORDER\n\n📱 ${phone}\n🎮 ${server}\n🆔 ${pid}\n📦 ${items}\n💰 ₹${total}`
+      })
+    });
+  });
+
+  /* WHATSAPP */
+  window.open(`https://wa.me/${phone}?text=Order confirmed ✔%0AItems: ${items}%0ATotal: ₹${total}`);
+
+  cart=[];
+  updateCart();
+  toggleCart();
+
+}
+
+/* LOGIN */
+function login(){
+  auth.signInWithEmailAndPassword(email.value,password.value)
+  .then(loadOrders)
+  .then(()=>go("panel"))
+}
+
+/* LOAD ORDERS */
+function loadOrders(){
+  db.collection("orders").onSnapshot(snap=>{
+    let box=document.getElementById("orders");
+    box.innerHTML="";
+
+    snap.forEach(doc=>{
+      let o=doc.data();
+
+      box.innerHTML+=`
+        <div style="background:#1e1e38;padding:10px;margin:10px;border-radius:10px">
+          📱 ${o.phone}<br>
+          📦 ${o.items}<br>
+          💰 ₹${o.total}<br>
+          🎮 ${o.gameServer}<br>
+          🆔 ${o.playerId}<br>
+        </div>
+      `;
+    });
+  });
+}
+
+</script>
+
+</body>
+</html>
