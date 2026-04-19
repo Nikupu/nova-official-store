@@ -70,18 +70,6 @@ header{
   border-radius:8px;
 }
 
-/* TABS */
-.tabs{display:flex;overflow-x:auto;background:#111}
-.tab{
-  flex:1;
-  min-width:120px;
-  padding:12px;
-  background:#1c1c33;
-  border:none;
-  color:white;
-}
-.tab.active{background:#2575fc}
-
 /* PRODUCTS */
 .grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
 .product{
@@ -90,84 +78,18 @@ header{
   border-radius:10px;
   text-align:center;
 }
-
-.product img{
-  width:100%;
-  height:100px;
-  object-fit:cover;
-  border-radius:8px;
-  margin-bottom:5px;
-}
-
-/* CART */
-#cart{
-  position:fixed;
-  top:0;
-  right:-100%;
-  width:80%;
-  height:100%;
-  background:#0f0f20;
-  transition:0.3s;
-  padding:15px;
-  z-index:999;
-}
-#cart.open{right:0}
-
-.cartItem{
-  background:#1e1e38;
-  padding:10px;
-  margin-bottom:8px;
-  border-radius:10px;
-}
-
-/* SUCCESS SCREEN */
-#successScreen{
-  position:fixed;
-  top:0;left:0;
-  width:100%;height:100%;
-  background:rgba(0,0,0,0.9);
-  display:none;
-  justify-content:center;
-  align-items:center;
-  flex-direction:column;
-  z-index:9999;
-}
-
-.check{
-  width:80px;
-  height:80px;
-  border-radius:50%;
-  background:#2575fc;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  font-size:40px;
-  animation:pop 0.4s ease;
-}
-
-@keyframes pop{
-  0%{transform:scale(0)}
-  100%{transform:scale(1)}
-}
 </style>
 </head>
 
 <body>
 
-<!-- 🎉 SUCCESS SCREEN -->
-<div id="successScreen">
-  <div class="check">✔</div>
-  <h2>Order Confirmed</h2>
-  <p>We are processing your order</p>
-</div>
-
-<!-- 🏠 WELCOME -->
+<!-- WELCOME -->
 <div id="welcome" class="page active">
   <h1>🚀 Nova Official Store</h1>
   <button class="btn" onclick="go('phone')">Enter Store</button>
 </div>
 
-<!-- 📱 PHONE -->
+<!-- PHONE -->
 <div id="phone" class="page">
   <h3>Enter WhatsApp Number</h3>
   <input id="phoneInput" maxlength="10"
@@ -175,16 +97,12 @@ header{
   <button class="btn" onclick="enterShop()">Continue</button>
 </div>
 
-<!-- 🛍️ SHOP -->
+<!-- SHOP -->
 <div id="shop" class="page">
 
 <header>
   Nova Store
-
-  <button class="cartBtn" onclick="toggleCart()">
-    🛒 <span id="count">0</span>
-  </button>
-
+  <button class="cartBtn" onclick="toggleCart()">🛒 <span id="count">0</span></button>
   <button class="adminBtn" onclick="go('admin')">Admin</button>
 </header>
 
@@ -192,69 +110,19 @@ header{
 <input id="gameServer" placeholder="Game Server">
 <input id="playerId" placeholder="Player ID">
 
-<div class="tabs">
-  <button class="tab active" onclick="showTab('games')">Games</button>
-  <button class="tab" onclick="showTab('topup')">Topup</button>
-  <button class="tab" onclick="showTab('premium')">Premium</button>
-</div>
-
-<!-- GAMES -->
-<div id="games" class="tabPage active">
-  <div class="grid">
-
-    <div class="product">
-      <img src="YOUR_IMG_URL">
-      BGMI UC
-      <button class="btn" onclick="add('BGMI UC',100)">Add ₹100</button>
-    </div>
-
-    <div class="product">
-      <img src="YOUR_IMG_URL">
-      Free Fire
-      <button class="btn" onclick="add('FF Diamonds',150)">Add ₹150</button>
-    </div>
-
-  </div>
-</div>
-
-<!-- TOPUP -->
-<div id="topup" class="tabPage" style="display:none">
-  <div class="grid">
-    <div class="product">
-      <img src="YOUR_IMG_URL">
-      Google Play
-      <button class="btn" onclick="add('Google Play',100)">Add ₹100</button>
-    </div>
-  </div>
-</div>
-
-<!-- PREMIUM -->
-<div id="premium" class="tabPage" style="display:none">
-  <div class="grid">
-    <div class="product">
-      <img src="YOUR_IMG_URL">
-      Netflix
-      <button class="btn" onclick="add('Netflix',199)">Add ₹199</button>
-    </div>
+<div class="grid">
+  <div class="product">
+    BGMI UC
+    <button class="btn" onclick="add('BGMI UC',100)">Add ₹100</button>
   </div>
 </div>
 
 </div>
 
-<!-- 🛒 CART -->
-<div id="cart">
+<!-- CART -->
+<div id="cart" style="display:none"></div>
 
-<h3>Your Cart</h3>
-<div id="cartBox"></div>
-
-<h3>Total: ₹<span id="total">0</span></h3>
-
-<button class="btn" onclick="checkout()">Checkout</button>
-<button class="btn" onclick="toggleCart()">Close</button>
-
-</div>
-
-<!-- 👑 ADMIN -->
+<!-- ADMIN -->
 <div id="admin" class="page">
   <h2>Admin Login</h2>
   <input id="email" placeholder="Email">
@@ -262,7 +130,7 @@ header{
   <button class="btn" onclick="login()">Login</button>
 </div>
 
-<!-- 📊 PANEL -->
+<!-- PANEL -->
 <div id="panel" class="page">
   <h2>Orders</h2>
   <div id="orders"></div>
@@ -272,9 +140,9 @@ header{
 
 /* FIREBASE */
 const firebaseConfig = {
-  apiKey: "AIzaSyB5KG4iKmlDQ_yvrXRfIIsUMZriT4VduTU",
-  authDomain: "nova-official-store.firebaseapp.com",
-  projectId: "nova-official-store"
+  apiKey: "YOUR_API_KEY",
+  authDomain: "YOUR_AUTH",
+  projectId: "YOUR_ID"
 };
 
 firebase.initializeApp(firebaseConfig);
@@ -282,7 +150,7 @@ const db = firebase.firestore();
 const auth = firebase.auth();
 
 /* TELEGRAM */
-const botToken = "8744636068:AAHer6DTm0hGrhrRxPmfdhLg0zjrSmGNuTs";
+const botToken = "YOUR_BOT_TOKEN";
 const adminIds = ["8720072070"];
 
 /* STATE */
@@ -302,37 +170,30 @@ function enterShop(){
 }
 
 /* CART */
-function toggleCart(){
-  document.getElementById("cart").classList.toggle("open");
-}
-
 function add(name,price){
   cart.push({name,price});
-  updateCart();
+  document.getElementById("count").innerText=cart.length;
 }
 
-function removeItem(i){
-  cart.splice(i,1);
-  updateCart();
-}
+/* 🔔 TELEGRAM FIXED */
+function sendTelegram(msg){
 
-function updateCart(){
-  let box=document.getElementById("cartBox");
-  box.innerHTML="";
-  let total=0;
+  adminIds.forEach(id=>{
 
-  cart.forEach((c,i)=>{
-    total+=c.price;
-    box.innerHTML+=`
-      <div class="cartItem">
-        ${c.name} - ₹${c.price}
-        <button class="btn" style="background:red" onclick="removeItem(${i})">Remove</button>
-      </div>
-    `;
+    fetch(`https://api.telegram.org/bot${botToken}/sendMessage`,{
+      method:"POST",
+      headers:{"Content-Type":"application/json"},
+      body:JSON.stringify({
+        chat_id:id,
+        text:msg
+      })
+    })
+    .then(r=>r.json())
+    .then(res=>console.log("Telegram sent ✔",res))
+    .catch(err=>console.log("Telegram error ❌",err));
+
   });
 
-  document.getElementById("count").innerText=cart.length;
-  document.getElementById("total").innerText=total;
 }
 
 /* CHECKOUT */
@@ -342,44 +203,34 @@ function checkout(){
 
   let total=cart.reduce((a,b)=>a+b.price,0);
   let items=cart.map(c=>c.name).join(", ");
+
   let server=document.getElementById("gameServer").value;
   let pid=document.getElementById("playerId").value;
 
   if(!server||!pid) return alert("Enter details");
 
   db.collection("orders").add({
-    phone,items,total,server,pid,
+    phone,
+    items,
+    total,
+    server,
+    pid,
     claimed:false,
     time:Date.now()
   });
 
-  adminIds.forEach(id=>{
-    fetch(`https://api.telegram.org/bot${botToken}/sendMessage`,{
-      method:"POST",
-      headers:{"Content-Type":"application/json"},
-      body:JSON.stringify({
-        chat_id:id,
-        text:`🛒 NEW ORDER\n📱 ${phone}\n📦 ${items}\n💰 ₹${total}`
-      })
-    });
-  });
+  sendTelegram(`🛒 NEW ORDER\n📱 ${phone}\n📦 ${items}\n💰 ₹${total}`);
 
   cart=[];
-  updateCart();
-  toggleCart();
+  document.getElementById("count").innerText=0;
 
-  // 🎉 SUCCESS SCREEN
-  document.getElementById("successScreen").style.display="flex";
-
-  setTimeout(()=>{
-    document.getElementById("successScreen").style.display="none";
-  },2000);
+  alert("✅ Order Confirmed");
 }
 
-/* ADMIN */
+/* LOGIN */
 function login(){
   auth.signInWithEmailAndPassword(email.value,password.value)
-  .then(()=>loadOrders())
+  .then(loadOrders)
   .then(()=>go("panel"));
 }
 
@@ -405,11 +256,13 @@ function loadOrders(){
         </div>
       `;
     });
+
   });
 }
 
 /* CLAIM */
 async function claim(id,phone,items){
+
   await db.collection("orders").doc(id).update({
     claimed:true
   });
@@ -417,11 +270,10 @@ async function claim(id,phone,items){
   window.open(`https://wa.me/${phone}?text=Your order is being processed ✔%0A${items}`);
 }
 
-/* REJECT */
+/* ❌ REJECT → DELETE ORDER */
 async function rejectOrder(id){
-  await db.collection("orders").doc(id).update({
-    status:"rejected"
-  });
+  await db.collection("orders").doc(id).delete();
+  alert("Order deleted ❌");
 }
 
 </script>
