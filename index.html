@@ -5,7 +5,6 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Nova Official Store</title>
 
-<!-- FIREBASE -->
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
@@ -109,7 +108,6 @@ header{
   <h1>🚀 Nova Official Store</h1>
   <p>Fast • Secure • Instant Delivery</p>
   <button class="btn" onclick="go('phone')">Enter Store</button>
-  <button class="btn" style="background:#111" onclick="go('admin')">👑 Admin Panel</button>
 </div>
 
 <!-- 📱 PHONE -->
@@ -125,9 +123,25 @@ header{
 
 <header>
   Nova Store
+
   <button class="cartBtn" onclick="toggleCart()">
     🛒 <span id="count">0</span>
   </button>
+
+  <!-- 👑 SMALL ADMIN BUTTON -->
+  <button onclick="go('admin')" style="
+    position:absolute;
+    left:10px;
+    top:8px;
+    background:#111;
+    color:white;
+    border:none;
+    padding:6px 10px;
+    border-radius:6px;
+    font-size:12px;">
+    Admin
+  </button>
+
 </header>
 
 <h3>Game Details</h3>
@@ -146,6 +160,7 @@ header{
       BGMI UC
       <button class="btn" onclick="add('BGMI UC',100)">Add ₹100</button>
     </div>
+
     <div class="product">
       Free Fire
       <button class="btn" onclick="add('FF Diamonds',150)">Add ₹150</button>
@@ -203,7 +218,7 @@ header{
 
 <script>
 
-/* FIREBASE CONNECT */
+/* FIREBASE */
 const firebaseConfig = {
   apiKey: "AIzaSyB5KG4iKmlDQ_yvrXRfIIsUMZriT4VduTU",
   authDomain: "nova-official-store.firebaseapp.com",
@@ -218,9 +233,12 @@ firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
 const auth = firebase.auth();
 
-/* TELEGRAM */
-const botToken = "8744636068:AAHer6DTm0hGrhrRxPmfdhLg0zjrSmGNuTs";
-const adminIds = ["8720072070"];
+/* TELEGRAM (MULTI ADMIN) */
+const botToken = "YOUR_NEW_TOKEN";
+
+const adminIds = [
+  "8720072070"
+];
 
 /* STATE */
 let cart=[];
@@ -305,10 +323,11 @@ function checkout(){
     gameServer:server,
     playerId:pid,
     claimed:false,
+    claimedBy:null,
     time:Date.now()
   });
 
-  /* TELEGRAM */
+  /* TELEGRAM MULTI ADMIN */
   adminIds.forEach(id=>{
     fetch(`https://api.telegram.org/bot${botToken}/sendMessage`,{
       method:"POST",
@@ -336,9 +355,10 @@ function login(){
   .then(()=>go("panel"))
 }
 
-/* LOAD ORDERS */
+/* ORDERS + CLAIM */
 function loadOrders(){
-  db.collection("orders").onSnapshot(snap=>{
+  db.collection("orders").orderBy("time","desc")
+  .onSnapshot(snap=>{
     let box=document.getElementById("orders");
     box.innerHTML="";
 
@@ -347,15 +367,42 @@ function loadOrders(){
 
       box.innerHTML+=`
         <div style="background:#1e1e38;padding:10px;margin:10px;border-radius:10px">
+
           📱 ${o.phone}<br>
           📦 ${o.items}<br>
           💰 ₹${o.total}<br>
           🎮 ${o.gameServer}<br>
           🆔 ${o.playerId}<br>
+          🔖 ${o.claimed ? "CLAIMED" : "PENDING"}<br>
+
+          <button class="btn" onclick="claim('${doc.id}','${o.phone}','${o.items}')">
+            Claim Order
+          </button>
+
         </div>
       `;
     });
   });
+}
+
+/* CLAIM */
+async function claim(id,phone,items){
+
+  const ref=db.collection("orders").doc(id);
+
+  const doc=await ref.get();
+
+  if(doc.data().claimed){
+    alert("Already claimed");
+    return;
+  }
+
+  await ref.update({
+    claimed:true,
+    claimedBy:auth.currentUser.email
+  });
+
+  window.open(`https://wa.me/${phone}?text=Hello 👋%0AYour order is now being processed ✔%0AItems: ${items}%0AStatus: CLAIMED`);
 }
 
 </script>
