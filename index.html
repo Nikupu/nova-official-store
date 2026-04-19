@@ -60,7 +60,16 @@ input{width:100%;padding:10px;margin-top:8px;border-radius:8px;border:none;}
   <h2>Welcome to Nova Store</h2>
   <button class="btn" onclick="go('phone')">Enter Shop</button>
 </div>
+<button onclick="getID()">Get ID</button>
 
+<script>
+function getID(){
+  OneSignal.getUserId().then(function(id){
+    alert("Your Player ID: " + id);
+  });
+}
+</script>
+  
 <!-- PHONE -->
 <div class="page" id="phone">
   <h3>Enter WhatsApp Number</h3>
