@@ -106,7 +106,8 @@ function startBooking(){if(!$('destination').value){locationModal('destination')
 function renderRides(){ $('rideOptions').innerHTML=Object.entries(rides).map(([name,r])=>`<div class="ride-card"><div class="ride-icon">${r.icon}</div><div><h4>${name}</h4><p>${r.desc}<br>${r.seats} seat${r.seats>1?'s':''} • ${r.eta} away • ${r.duration}</p></div><div><div class="fare">₹${r.base+r.km*8}–₹${r.base+r.km*12}</div><button class="select" onclick="selectRide('${name}')">Select</button></div></div>`).join('');calcFare()}
 function calcFare(){let d=+($('distance')?.value||8),r=rides[selectedRide],base=r.base,charge=d*r.km,fee=10;fare=Math.round(base+charge+fee);if($('fareBox'))$('fareBox').innerHTML=`<div class="payment-row"><span>Base fare</span><b>₹${base}</b></div><div class="payment-row"><span>Distance charge</span><b>₹${Math.round(charge)}</b></div><div class="payment-row"><span>Service fee</span><b>₹${fee}</b></div><div class="total">Estimated total <span style="float:right">₹${fare}</span></div>`}
 function selectRide(name){selectedRide=name;calcFare();confirmSheet()}
-function confirmSheet(){$('sheet').innerHTML=`<button class="close" onclick="closeModal()">×</button><h2>Confirm your ride</h2><p class="muted">${$('pickup').value} → ${$('destination').value}</p><div class="ride-card"><div class="ride-icon">${rides[selectedRide].icon}</div><div><h4>${selectedRide}</h4><p>${rides[selectedRid</pre>
+function confirmSheet(){$('sheet').innerHTML=`<button class="close" onclick="closeModal()">×</button><h2>Confirm your ride</h2><p class="muted">${$('pickup').value} → ${$('destination').value}</p><div class="ride-card"><div class="ride-icon">${rides[selectedRide].icon}</div><div><h4>${selectedRide}</h4><p>${rides[selectedRid
+</pre>
 
 </body>
 </html>
