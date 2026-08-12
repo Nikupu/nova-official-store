@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>WhatsApp Opener</title>
+
+    <link rel="icon" type="image/png" href="logo.png">
+    <link rel="manifest" href="manifest.json">
+
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: Arial, Helvetica, sans-serif;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: linear-gradient(135deg, #075E54, #128C7E, #25D366);
+            padding: 20px;
+        }
+
+        /* Main App Card */
+        .app {
+            width: 100%;
+            max-width: 480px;
+            background: white;
+            border-radius: 28px;
+            padding: 45px 35px;
+            text-align: center;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.25);
+            animation: appear 0.6s ease;
+        }
+
+        @keyframes appear {
+            from {
+                opacity: 0;
+                transform: translateY(25px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* WhatsApp Logo */
+        .logo {
+            width: 90px;
+            height: 90px;
+            margin: 0 auto 20px;
+            border-radius: 50%;
+            background: #25D366;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            box-shadow: 0 8px 20px rgba(37, 211, 102, 0.35);
+        }
+
+        .logo span {
+            font-size: 48px;
+        }
+
+        h1 {
+            font-size: 34px;
+            color: #222;
+            margin-bottom: 8px;
+        }
+
+        .subtitle {
+            color: #777;
+            font-size: 16px;
+            margin-bottom: 35px;
+        }
+
+        /* Input Area */
+        .input-container {
+            display: flex;
+            align-items: center;
+            border: 2px solid #ddd;
+            border-radius: 14px;
+            padding: 0 15px;
+            height: 62px;
+            transition: 0.25s;
+            background: #fafafa;
+        }
+
+        .input-container:focus-within {
+            border-color: #25D366;
+            background: white;
+            box-shadow: 0 0 0 4px rgba(37, 211, 102, 0.12);
+        }
+
+        .country-code {
+            font-size: 18px;
+            font-weight: bold;
+            color: #444;
+            border-right: 1px solid #ddd;
+            padding-right: 12px;
+            margin-right: 12px;
+        }
+
+        input {
+            border: none;
+            outline: none;
+            width: 100%;
+            font-size: 19px;
+            background: transparent;
+        }
+
+        input::placeholder {
+            color: #aaa;
+        }
+
+        /* Button */
+        button {
+            width: 100%;
+            height: 62px;
+            margin-top: 20px;
+            border: none;
+            border-radius: 14px;
+            background: #25D366;
+            color: white;
+            font-size: 19px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: 0.2s;
+            box-shadow: 0 7px 15px rgba(37, 211, 102, 0.3);
+        }
+
+        button:hover {
+            background: #20bd5a;
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(37, 211, 102, 0.35);
+        }
+
+        button:active {
+            transform: scale(0.98);
+        }
+
+        /* Small info */
+        .info {
+            margin-top: 25px;
+            color: #999;
+            font-size: 13px;
+        }
+
+        /* Footer */
+        .footer {
+            margin-top: 30px;
+            font-size: 13px;
+            color: #aaa;
+        }
+
+        /* Mobile */
+        @media (max-width: 500px) {
+
+            .app {
+                padding: 35px 22px;
+                border-radius: 24px;
+            }
+
+            h1 {
+                font-size: 29px;
+            }
+
+            .logo {
+                width: 75px;
+                height: 75px;
+            }
+
+            .logo span {
+                font-size: 40px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="app">
+
+        <div class="logo">
+            <span>💬</span>
+        </div>
+
+        <h1>WhatsApp Opener</h1>
+
+        <p class="subtitle">
+            Open a WhatsApp chat instantly
+        </p>
+
+        <div class="input-container">
+
+            <div class="country-code">
+                +91
+            </div>
+
+            <input
+                type="tel"
+                id="number"
+                placeholder="Enter phone number"
+                maxlength="10"
+            >
+
+        </div>
+
+        <button onclick="openWhatsApp()">
+            Open WhatsApp
+        </button>
+
+        <p class="info">
+            Enter a 10-digit Indian mobile number
+        </p>
+
+        <div class="footer">
+            WhatsApp Opener
+        </div>
+
+    </div>
+
+
+    <script>
+
+        function openWhatsApp() {
+
+            let number = document.getElementById("number").value;
+
+            // Remove spaces and other characters
+            number = number.replace(/\D/g, "");
+
+            // Check number
+            if (number.length !== 10) {
+                alert("Please enter a valid 10-digit phone number.");
+                return;
+            }
+
+            // Open WhatsApp
+            window.location.href = "https://wa.me/91" + number;
+        }
+
+        // Press Enter to open WhatsApp
+        document.getElementById("number").addEventListener("keypress", function(event) {
+
+            if (event.key === "Enter") {
+                openWhatsApp();
+            }
+
+        });
+
+    </script>
+
+</body>
+</html>
